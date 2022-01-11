@@ -1,0 +1,33 @@
+<div class="scanner-window">
+  <div
+    #scannerContainer
+    class="scanner-container"
+    [hidden]="!(currentDevice$ | async)"
+  >
+    <video #video autoplay playsinline muted></video>
+    <canvas #scanResultCanvas id="scanResultCanvas"></canvas>
+    <div #scannerArea class="scanner-area"></div>
+  </div>
+
+  <div class="controls">
+    <p-selectButton
+      [options]="controlOptions"
+      (onOptionClick)="selectControl($event)"
+    >
+      <ng-template let-item>
+        <div class="select-item">
+          <i [ngClass]="item.icon"></i>
+          <span>{{ item.name }}</span>
+        </div>
+      </ng-template>
+    </p-selectButton>
+  </div>
+
+  <canvas #snapshotCanvas id="snapshotCanvas"></canvas>
+</div>
+
+<p-toast
+  position="bottom-center"
+  life="1000"
+  [preventOpenDuplicates]="true"
+></p-toast>

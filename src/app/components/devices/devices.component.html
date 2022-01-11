@@ -1,0 +1,11 @@
+<mat-nav-list>
+  <a
+    mat-list-item
+    *ngFor="let item of data.devices; let i = index"
+    (click)="select(item, i)"
+    [ngClass]="{ selected: selectIndex === i }"
+  >
+    <span mat-line>{{ item.label }}</span>
+    <span mat-line>{{ item.deviceId }}</span>
+  </a>
+</mat-nav-list>
