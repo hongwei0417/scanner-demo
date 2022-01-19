@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "gh-page": "ng build --prod --base-href=https://hongwei0417.github.io/scanner-demo/ && npm run deploy",
+    "deploy": "npx ngh --dir=dist/scanner-demo --no-silent"
   },
   "private": true,
   "dependencies": {
@@ -26,6 +28,7 @@
     "primeng": "^13.0.4",
     "rxjs": "~7.4.0",
     "tslib": "^2.3.0",
+    "webrtc-adapter": "^8.1.1",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {

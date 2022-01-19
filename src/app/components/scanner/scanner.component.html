@@ -12,7 +12,7 @@
   <div class="controls">
     <p-selectButton
       [options]="controlOptions"
-      (onOptionClick)="selectControl($event)"
+      (onOptionClick)="onSelectControl($event)"
     >
       <ng-template let-item>
         <div class="select-item">
@@ -22,12 +22,31 @@
       </ng-template>
     </p-selectButton>
   </div>
-
-  <canvas #snapshotCanvas id="snapshotCanvas"></canvas>
 </div>
 
 <p-toast
   position="bottom-center"
   life="1000"
   [preventOpenDuplicates]="true"
-></p-toast>
+  class="toast"
+  styleClass="toast"
+>
+  <ng-template let-message pTemplate="message">
+    <div class="content">
+      <div>
+        <i class="pi pi-check" style="font-size: 1rem"></i>
+        <span style="font-size: 1rem">{{ message.summary }}</span>
+      </div>
+      <div>
+        <p-button
+          pRipple
+          label="選擇"
+          styleClass="p-button-text p-button-sm"
+          (onClick)="onSelectResult(message.summary)"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-toast>
+
+<p-toast position="bottom-right" key="error"></p-toast>

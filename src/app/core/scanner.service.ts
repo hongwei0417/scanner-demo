@@ -1,7 +1,7 @@
 import { DecoderService } from './decoder.service';
 import { CameraService } from './camera.service';
 import { ElementRef, Injectable } from '@angular/core';
-import { BehaviorSubject, fromEvent, Observable } from 'rxjs';
+import { BehaviorSubject, fromEvent, Observable, Subscription } from 'rxjs';
 import { BarcodeFormat, BrowserMultiFormatReader } from '@zxing/browser';
 import { DecodeHintType, ResultPoint } from '@zxing/library';
 
@@ -26,6 +26,7 @@ export class ScannerService {
   zoomRatio$ = new BehaviorSubject<number>(1);
   scanPeriod = 30;
   imageProcessCallback: Function;
+  subscriptions: Subscription[] = [];
 
   constructor(
     private cameraService: CameraService,
@@ -83,12 +84,22 @@ export class ScannerService {
     this.windowResized$ = fromEvent(window, 'resize');
 
     // subscribes
-    this.videoLoaded$.subscribe(this.start.bind(this));
-    this.decoderService.resultPoints$.subscribe(this.drawResult.bind(this));
-    this.zoomRatio$.subscribe(this.onZoomChange.bind(this));
-    this.videoClick$.subscribe(this.cameraService.pauseAndPlay);
-    this.windowResized$.subscribe(this.resizeWindow.bind(this));
-    this.videoResized$.subscribe(this.resizeWindow.bind(this));
+    this.subscriptions.push(this.videoLoaded$.subscribe(this.start.bind(this)));
+    this.subscriptions.push(
+      this.decoderService.resultPoints$.subscribe(this.drawResult.bind(this))
+    );
+    this.subscriptions.push(
+      this.zoomRatio$.subscribe(this.onZoomChange.bind(this))
+    );
+    this.subscriptions.push(
+      this.videoClick$.subscribe(this.clickWindow.bind(this))
+    );
+    this.subscriptions.push(
+      this.windowResized$.subscribe(this.resizeWindow.bind(this))
+    );
+    this.subscriptions.push(
+      this.videoResized$.subscribe(this.resizeWindow.bind(this))
+    );
   }
 
   setImageProcessCallback(func: Function) {
@@ -102,6 +113,16 @@ export class ScannerService {
     } catch (error) {
       this.error$.next(error);
     }
+  }
+
+  close() {
+    this.subscriptions.forEach((sub) => {
+      sub.unsubscribe();
+    });
+  }
+
+  clickWindow() {
+    this.cameraService.pauseAndPlay();
   }
 
   onZoomChange(value): void {
@@ -160,7 +181,7 @@ export class ScannerService {
   }
 
   scan() {
-    if (!this.cameraService.active) return;
+    if (!this.cameraService.active$.getValue()) return;
     requestAnimationFrame(this.scan.bind(this));
 
     this.captureImage();

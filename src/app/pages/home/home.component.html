@@ -1,18 +1,99 @@
-<div class="container">
-  <h1>上儲位</h1>
-  <div class="block">
-    <div class="name">儲位資訊</div>
-    <div class="scan-btn" (click)="startScan('shelf')">
-      <mat-icon>camera_alt</mat-icon>
+<div class="container" *ngIf="!currentScanner">
+  <h1>上儲位(測試)</h1>
+  <div class="content">
+    <div class="header-block">
+      <span>自動換欄位</span>
+      <p-inputSwitch [(ngModel)]="autoSwitchField"></p-inputSwitch>
     </div>
-  </div>
-  <div class="block">
-    <div class="name">物件資訊</div>
-    <div class="scan-btn" (click)="startScan('object')">
-      <mat-icon>camera_alt</mat-icon>
+    <div class="block">
+      <div class="name">儲位資訊</div>
+      <div class="p-inputgroup input-container p-inputtext-lg single-btn">
+        <input [formControl]="shelfCode" type="text" pInputText class="input" />
+        <button
+          type="button"
+          pButton
+          pRipple
+          [icon]="isCameraLoading ? 'pi pi-spin pi-spinner' : 'pi pi-camera'"
+          class="single-btn"
+          (click)="onOpenScanner('shelf')"
+        ></button>
+      </div>
     </div>
-    <div class="scan-btn" (click)="startScan('add')">
-      <mat-icon>add_a_photo</mat-icon>
+    <div class="block" *ngIf="showObjectBlock">
+      <div class="name">物件資訊</div>
+      <ng-container
+        *ngFor="let item of objectCodes; let i = index; trackBy: onTrackObjects"
+      >
+        <div class="p-input-icon-right input-container double-btn">
+          <div class="p-inputgroup p-inputtext-lg">
+            <input
+              [id]="'input-' + i"
+              type="text"
+              pInputText
+              class="input"
+              [(ngModel)]="objectCodes[i]"
+              (input)="onChangeObjectCode($event, i)"
+            />
+            <button
+              type="button"
+              pButton
+              pRipple
+              [icon]="
+                isCameraLoading ? 'pi pi-spin pi-spinner' : 'pi pi-camera'
+              "
+              (click)="onOpenScanner('object', i)"
+            ></button>
+            <button
+              type="button"
+              pButton
+              pRipple
+              icon="pi pi-times"
+              class="p-button-secondary"
+              [disabled]="objectCodes.length === 1"
+              (click)="onDeleteScanObject(i)"
+            ></button>
+          </div>
+        </div>
+      </ng-container>
+      <button
+        pButton
+        pRipple
+        type="button"
+        label="新增物件"
+        class="p-button-outlined p-button-lg"
+        (click)="onAddScanObject()"
+      ></button>
     </div>
+    <button
+      *ngIf="showObjectBlock"
+      pButton
+      pRipple
+      type="button"
+      label="送出"
+      class="p-button-raised"
+      style="width: 100%"
+      (click)="showConfirmDialog = true"
+    ></button>
   </div>
 </div>
+
+<scanner-component
+  *ngIf="currentScanner"
+  (onSelect)="onSelectResult($event)"
+  (onClose)="onCloseScanner()"
+></scanner-component>
+
+<p-dialog
+  header="感謝你的測試"
+  [(visible)]="showConfirmDialog"
+  [breakpoints]="{ '960px': '75vw' }"
+  [style]="{ width: '50vw' }"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <p>儲位: {{ shelfCode.value }}</p>
+  <p *ngFor="let value of objectCodes; let i = index">
+    物件{{ i + 1 }}: {{ value }}
+  </p>
+</p-dialog>

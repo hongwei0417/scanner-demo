@@ -1,0 +1,22 @@
+$phone-media-max: 768px;
+$tablet-media-min: 769px;
+$tablet-media-max: 1279px;
+$pc-media-min: 1280px;
+
+@mixin phone-width {
+  @media (max-width: $phone-media-max) {
+    @content;
+  }
+}
+
+@mixin tablet-width {
+  @media (min-width: $tablet-media-min) and (max-width: $tablet-media-max) {
+    @content;
+  }
+}
+
+@mixin pc-width {
+  @media (min-width: $pc-media-min) {
+    @content;
+  }
+}

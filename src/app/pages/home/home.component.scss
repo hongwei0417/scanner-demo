@@ -1,3 +1,5 @@
+@import "../../../media-query.scss";
+
 .container {
   display: flex;
   flex-direction: column;
@@ -5,51 +7,97 @@
   color: white;
   min-height: 100vh;
 
-  .block {
-    box-sizing: border-box;
-    border: 1px solid white;
-    border-radius: 15px;
-    width: 70%;
-    min-height: 40vh;
-    padding: 30px 50px;
-    margin: 30px;
+  .header-block {
+    width: 100%;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+    span {
+      margin-right: 5px;
+      font-size: 0.8rem;
+    }
+  }
 
-    .name {
-      font-size: 1.3rem;
-      width: 100%;
-      margin-bottom: 20px;
+  .content {
+    @include phone-width {
+      width: 90%;
     }
 
-    .scan-btn {
+    @include tablet-width {
+      width: 80%;
+    }
+
+    @include pc-width {
+      width: 50%;
+    }
+
+    .block {
+      box-sizing: border-box;
       border: 1px solid white;
       border-radius: 15px;
-      width: 100%;
-      height: 300px;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      margin: 15px 0;
+      gap: 50px 0;
+      padding: 30px 50px 50px 50px;
+      width: 100%;
+      margin-bottom: 30px;
 
-      mat-icon {
-        font-size: 72px;
-        height: 72px;
-        width: 72px;
+      @include phone-width {
+        padding: 20px;
+        gap: 20px 0;
       }
 
-      &:hover {
-        cursor: pointer;
-        background-color: rgba(252, 163, 17, 0.3);
+      input:focus {
+        background-color: #d7e3fc;
       }
 
-      &:active {
-        transition: none;
-        background-color: rgba(252, 163, 17, 0.5);
+      .p-button-outlined {
+        color: white;
+        width: 100%;
       }
 
-      transition: all 0.3s ease-out;
+      .name {
+        font-size: 1.3rem;
+        width: 100%;
+      }
+
+      .input-container {
+        width: 100%;
+
+        &.single-btn {
+          button {
+            width: 30%;
+
+            @include phone-width {
+              width: 50%;
+            }
+          }
+        }
+
+        &.double-btn {
+          button {
+            width: 15%;
+
+            @include phone-width {
+              width: 25%;
+            }
+          }
+        }
+
+        .p-button-icon {
+          font-size: 2rem;
+        }
+      }
+    }
+  }
+}
+
+:host ::ng-deep {
+  .input-container {
+    .p-button-icon {
+      font-size: 2rem;
     }
   }
 }
