@@ -1,29 +1,58 @@
+import { ApiService } from './../../services/api.service';
 import { distinctUntilChanged, filter, map } from 'rxjs/operators';
 import { CameraService } from './../../core/camera.service';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, from, of, Subscription } from 'rxjs';
-import { FormControl } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
+import { ScannerLog } from 'src/app/models/ScannerLog';
 
 @Component({
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
-  constructor(private router: Router, private cameraService: CameraService) {}
+  constructor(
+    private router: Router,
+    private cameraService: CameraService,
+    private apiService: ApiService,
+    private formBuilder: FormBuilder
+  ) {}
 
-  objectCodes = [''];
+  form = this.formBuilder.group({
+    shelf: ['', Validators.required],
+    object: this.formBuilder.array([
+      this.formBuilder.control('', Validators.required),
+    ]),
+  });
   currentScanner = null;
   autoSwitchField = true;
   showObjectBlock = false;
   showConfirmDialog = false;
   isCameraLoading = false;
-  shelfCode = new FormControl();
+  isFormValid = false;
+  isSubmitLoading = false;
   subscription = new Subscription();
+
+  get shelf(): FormControl {
+    return this.form.controls['shelf'] as FormControl;
+  }
+  get object(): FormArray {
+    return this.form.controls['object'] as FormArray;
+  }
 
   ngOnInit(): void {
     this.subscription.add(
-      this.shelfCode.valueChanges.subscribe(this.changeShelfCode.bind(this))
+      this.shelf.valueChanges.subscribe(this.checkShelfData.bind(this))
+    );
+    this.subscription.add(
+      this.object.valueChanges.subscribe(this.checkObjectData.bind(this))
     );
   }
 
@@ -38,14 +67,18 @@ export class HomeComponent implements OnInit {
     }, 0);
   }
 
-  changeShelfCode(value: string) {
+  checkShelfData(value: string) {
     if (value.length > 0) {
       this.showObjectBlock = true;
     } else {
       this.showObjectBlock = false;
-      this.objectCodes = [''];
+      this.object.setValue(['']);
     }
     if (this.autoSwitchField) this.focusInput('input-0');
+  }
+
+  checkObjectData(value: string[]) {
+    console.log(this.form.valid);
   }
 
   // events
@@ -68,11 +101,11 @@ export class HomeComponent implements OnInit {
   }
 
   onAddScanObject() {
-    this.objectCodes.push('');
+    this.object.push(new FormControl('', Validators.required));
   }
 
   onDeleteScanObject(index: number) {
-    this.objectCodes.splice(index, 1);
+    this.object.removeAt(index);
   }
 
   onCloseScanner(): void {
@@ -82,15 +115,37 @@ export class HomeComponent implements OnInit {
   onSelectResult(result: string) {
     switch (this.currentScanner.type) {
       case 'shelf':
-        this.shelfCode.setValue(result);
+        this.shelf.setValue(result);
         break;
       case 'object':
-        this.objectCodes[this.currentScanner.index] = result;
+        const item = this.object.at(this.currentScanner.index) as FormControl;
+        item.setValue(result);
+        console.log(item);
         this.focusInput(`input-${this.currentScanner.index + 1}`);
         break;
       default:
         break;
     }
     this.clearScannerState();
+  }
+
+  onSubmit() {
+    const data: ScannerLog = {
+      shelfId: this.shelf.value,
+      objectIds: this.object.value,
+    };
+    this.isSubmitLoading = true;
+    this.apiService.log(data).subscribe({
+      next: (data) => {
+        console.log(data);
+        this.isSubmitLoading = false;
+        this.showConfirmDialog = true;
+      },
+      error: (error) => {
+        console.log(error);
+        this.isSubmitLoading = false;
+        this.showConfirmDialog = true;
+      },
+    });
   }
 }

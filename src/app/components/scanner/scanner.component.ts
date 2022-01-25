@@ -110,6 +110,7 @@ export class ScannerComponent implements OnInit, AfterViewInit, OnDestroy {
       })
     );
     this.cameraService.loadDevices();
+    // this.showResult('Kevin');
   }
 
   ngOnDestroy(): void {
@@ -186,6 +187,7 @@ export class ScannerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onSelectResult(result: string) {
+    console.log(result);
     this.onSelect.emit(result);
   }
 }

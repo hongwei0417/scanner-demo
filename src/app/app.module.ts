@@ -12,6 +12,7 @@ import { DevicesComponent } from './components/devices/devices.component';
 import { PrimeNgModule } from './shared/prime-ng/prime-ng.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AutoFocusDirective } from './utils/directives/auto-focus.directive';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { AutoFocusDirective } from './utils/directives/auto-focus.directive';
     PrimeNgModule,
     FormsModule,
     ReactiveFormsModule,
+    HttpClientModule,
   ],
   providers: [MessageService],
   bootstrap: [AppComponent],
